@@ -173,7 +173,7 @@ const AareGuruIndicator = GObject.registerClass(
 
             const settingsItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.SETTINGS));
             settingsItem.connect('activate', () => {
-                this.openPrferences();
+                this.openPreferences();
             });
             this.menu.addMenuItem(settingsItem);
         }
