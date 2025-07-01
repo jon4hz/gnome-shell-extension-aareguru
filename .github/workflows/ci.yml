@@ -1,0 +1,81 @@
+name: CI - Build and Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  EXTENSION_NAME: "aareguru@jon4hz.io"
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y glib2.0-dev gettext jq curl
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating metadata.json..."
+          jq empty metadata.json
+
+          echo "Validating schema files..."
+          find schemas -name "*.xml" -exec xmllint --noout {} \;
+
+      - name: Check extension structure
+        run: |
+          echo "Checking required files..."
+          required_files=("extension.js" "prefs.js" "metadata.json" "stylesheet.css")
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+
+          echo "Checking schemas directory..."
+          if [ ! -d "schemas" ]; then
+            echo "❌ Missing schemas directory"
+            exit 1
+          fi
+
+          if [ ! -f "schemas/org.gnome.shell.extensions.aareguru.gschema.xml" ]; then
+            echo "❌ Missing schema file"
+            exit 1
+          fi
+
+          echo "✅ All required files present"
+
+      - name: Compile and validate extension
+        run: |
+          make validate
+
+      - name: Test build process
+        run: |
+          make zip
+
+          # Verify the zip contains required files
+          unzip -l "${EXTENSION_NAME}.zip"
+
+          # Extract and verify structure
+          mkdir -p test-extract
+          cd test-extract
+          unzip "../${EXTENSION_NAME}.zip"
+
+          # Check for compiled schema
+          if [ ! -f "schemas/gschemas.compiled" ]; then
+            echo "❌ Missing compiled schema in package"
+            exit 1
+          fi
+
+          echo "✅ Extension package validated"

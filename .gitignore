@@ -1,0 +1,27 @@
+# Build artifacts
+schemas/gschemas.compiled
+
+# Development files
+*.log
+*.tmp
+*~
+
+# IDE files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node modules (if using any JS tooling)
+node_modules/
+npm-debug.log*
+
+# Extension zip for distribution
+*.zip

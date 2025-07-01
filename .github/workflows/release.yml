@@ -1,0 +1,122 @@
+name: Build and Release Extension
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g., 1.2.3)"
+        required: true
+        type: string
+
+env:
+  EXTENSION_NAME: "aareguru@jon4hz.io"
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y glib2.0-dev gettext zip
+
+      - name: Extract version from tag or input
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "TAG=v$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Update metadata.json with version
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          # Update version in metadata.json (keep as string for semantic versioning)
+          jq --arg version "$VERSION" '.version = $version' metadata.json > metadata.json.tmp
+          mv metadata.json.tmp metadata.json
+
+          echo "Updated metadata.json:"
+          cat metadata.json
+
+      - name: Validate extension
+        run: |
+          make validate
+
+      - name: Build extension package
+        id: build
+        run: |
+          make zip
+
+          # Rename the zip file to include version
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          PACKAGE_NAME="${EXTENSION_NAME}-v${VERSION}.zip"
+          mv "${EXTENSION_NAME}.zip" "$PACKAGE_NAME"
+
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$PREV_TAG" ]; then
+            echo "## Changes since $PREV_TAG" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> CHANGELOG.md
+          else
+            echo "## Initial Release" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "- First release of Aare Guru GNOME Shell Extension" >> CHANGELOG.md
+          fi
+
+          echo "" >> CHANGELOG.md
+          echo "## Features" >> CHANGELOG.md
+          echo "- Display water temperature in GNOME Shell panel" >> CHANGELOG.md
+          echo "- Show detailed water flow and weather information" >> CHANGELOG.md
+          echo "- Detailed weather forecast for morning, afternoon, and evening" >> CHANGELOG.md
+          echo "- Water temperature forecast for 2 hours" >> CHANGELOG.md
+          echo "- Configurable city selection from Swiss measurement stations" >> CHANGELOG.md
+          echo "- Automatic data updates with configurable intervals" >> CHANGELOG.md
+          echo "- Color-coded temperature display" >> CHANGELOG.md
+          echo "- Swiss German interface with consistent UI strings" >> CHANGELOG.md
+
+          cat CHANGELOG.md
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.TAG }}
+          name: "Aare Guru v${{ steps.version.outputs.VERSION }}"
+          body_path: CHANGELOG.md
+          files: |
+            ${{ steps.build.outputs.package_name }}
+          draft: false
+          prerelease: false
+
+      - name: Get release upload URL
+        id: get_release
+        run: |
+          echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_OUTPUT
+          echo "RELEASE_ID=${{ steps.create_release.outputs.id }}" >> $GITHUB_OUTPUT
+          echo "RELEASE_URL=${{ steps.create_release.outputs.url }}" >> $GITHUB_OUTPUT

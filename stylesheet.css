@@ -1,0 +1,32 @@
+/* Aare Guru Extension Stylesheet */
+
+.aare-temperature-label {
+    font-weight: bold;
+    padding: 0 6px;
+    font-size: 1.0em;
+    color: #4A90E2;
+}
+
+.aare-popup-menu-item {
+    font-size: 0.9em;
+}
+
+.aare-popup-menu-item:insensitive {
+    color: #888;
+}
+
+.aare-temperature-cold {
+    color: #2196F3;
+}
+
+.aare-temperature-cool {
+    color: #4CAF50;
+}
+
+.aare-temperature-warm {
+    color: #FF9800;
+}
+
+.aare-temperature-hot {
+    color: #F44336;
+}

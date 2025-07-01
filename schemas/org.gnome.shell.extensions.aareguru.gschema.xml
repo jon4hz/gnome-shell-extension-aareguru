@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.aareguru" path="/org/gnome/shell/extensions/aareguru/">
+    <key name="city" type="s">
+      <default>"bern"</default>
+      <summary>City</summary>
+      <description>The city to display water temperature and flow information for</description>
+    </key>
+    <key name="update-interval" type="i">
+      <default>15</default>
+      <range min="1" max="300"/>
+      <summary>Update Interval</summary>
+      <description>How often to update the data in minutes</description>
+    </key>
+  </schema>
+</schemalist>
