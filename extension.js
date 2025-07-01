@@ -30,10 +30,11 @@ const UI_STRINGS = {
 
 const AareGuruIndicator = GObject.registerClass(
     class AareGuruIndicator extends PanelMenu.Button {
-        _init(settings) {
-            super._init(0.0, _('Aare Guru'));
+        constructor(extension, settings) {
+            super(0.0, _('Aare Guru'));
 
             this._settings = settings;
+            this._extension = extension;
             this._httpSession = new Soup.Session();
             this._updateTimeout = null;
             this._currentData = null;
@@ -173,7 +174,7 @@ const AareGuruIndicator = GObject.registerClass(
 
             const settingsItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.SETTINGS));
             settingsItem.connect('activate', () => {
-                this.openPreferences();
+                this._extension.openPreferences();
             });
             this.menu.addMenuItem(settingsItem);
         }
