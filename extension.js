@@ -173,7 +173,7 @@ const AareGuruIndicator = GObject.registerClass(
 
             const settingsItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.SETTINGS));
             settingsItem.connect('activate', () => {
-                this._openSettings();
+                this.openPrferences();
             });
             this.menu.addMenuItem(settingsItem);
         }
@@ -374,17 +374,6 @@ const AareGuruIndicator = GObject.registerClass(
             );
         }
 
-        _openSettings() {
-            try {
-                const proc = Gio.Subprocess.new(
-                    ['gnome-extensions', 'prefs', 'aareguru@jon4hz.io'],
-                    Gio.SubprocessFlags.NONE
-                );
-            } catch (error) {
-                log(`Error opening settings: ${error.message}`);
-            }
-        }
-
         destroy() {
             if (this._updateTimeout) {
                 GLib.source_remove(this._updateTimeout);
@@ -392,6 +381,7 @@ const AareGuruIndicator = GObject.registerClass(
             }
 
             if (this._httpSession) {
+                this._httpSession.abort();
                 this._httpSession = null;
             }
 

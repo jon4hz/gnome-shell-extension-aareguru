@@ -1,7 +1,7 @@
 {
   "uuid": "aareguru@jon4hz.io",
   "name": "Aare Guru",
-  "description": "Display water temperature and flow information from Aare.guru API in your GNOME Shell panel",
+  "description": "Display water temperature and flow information from aareguru.existenz.ch, the API for aare.guru, in your GNOME Shell panel",
   "shell-version": ["45", "46", "47", "48"],
   "version": "1.0.0",
   "url": "https://github.com/jon4hz/gnome-shell-extension-aareguru",
