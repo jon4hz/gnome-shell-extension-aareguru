@@ -398,7 +398,7 @@ export default class AareGuruExtension extends Extension {
 
     enable() {
         this._settings = this.getSettings();
-        this._indicator = new AareGuruIndicator(this._extension, this._settings);
+        this._indicator = new AareGuruIndicator(this, this._settings);
         Main.panel.addToStatusArea(this.uuid, this._indicator);
     }
 
