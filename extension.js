@@ -22,6 +22,7 @@ const UI_STRINGS = {
     EVENING: 'Abe',
     LOCATION: 'Ort',
     LAST_UPDATE: 'Z lesch Öpdeited',
+    SCHWIMMKANAL: 'Schwimmkanal',
     SETTINGS: 'Iistellige',
     ERROR: 'Fähler',
     NO_DATA: '--'
@@ -107,6 +108,17 @@ const AareGuruIndicator = GObject.registerClass(
                 reactive: false
             });
             this._flowSection.addMenuItem(this._flowTextItem);
+
+            // Schwimmkanal section
+            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+            this._schwimmkanalSection = new PopupMenu.PopupMenuSection();
+            this.menu.addMenuItem(this._schwimmkanalSection);
+
+            this._schwimmkanalItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.SCHWIMMKANAL + ': --'), {
+                reactive: false
+            });
+            this._schwimmkanalSection.addMenuItem(this._schwimmkanalItem);
 
             // Weather section
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -282,6 +294,17 @@ const AareGuruIndicator = GObject.registerClass(
             }
             this._flowTextItem.label.set_text(flowText);
 
+            // Schwimmkanal (bueber)
+            const bueber = data.bueber;
+            if (bueber) {
+                const isOpen = bueber.state_open_flag;
+                const emoji = isOpen ? '🏊‍♀️' : '🚫';
+                const statusText = isOpen ? 'Offe' : 'Zue';
+                this._schwimmkanalItem.label.set_text(_(UI_STRINGS.SCHWIMMKANAL + ': ') + `${emoji} ${statusText}`);
+            } else {
+                this._schwimmkanalItem.label.set_text(_(UI_STRINGS.SCHWIMMKANAL + ': --'));
+            }
+
             // Weather
             const airTemp = data.weather?.current?.tt;
             if (airTemp !== null && airTemp !== undefined) {
@@ -326,6 +349,7 @@ const AareGuruIndicator = GObject.registerClass(
             this._waterTempForecast2hItem.label.set_text(_(UI_STRINGS.WATER_TEMP_FORECAST_2H + ': --°C'));
             this._flowItem.label.set_text(_(UI_STRINGS.WATER_FLOW + ': --'));
             this._flowTextItem.label.set_text(UI_STRINGS.NO_DATA);
+            this._schwimmkanalItem.label.set_text(_(UI_STRINGS.SCHWIMMKANAL + ': --'));
             this._weatherItem.label.set_text(_(UI_STRINGS.AIR_TEMPERATURE + ': --'));
             this._morningForecastItem.label.set_text(_(UI_STRINGS.MORNING + ': --'));
             this._afternoonForecastItem.label.set_text(_(UI_STRINGS.AFTERNOON + ': --'));
