@@ -1,4 +1,7 @@
 # Aare Guru GNOME Shell Extension
+[![Test](https://github.com/jon4hz/gnome-shell-extension-aareguru/actions/workflows/ci.yml/badge.svg)](https://github.com/jon4hz/gnome-shell-extension-aareguru/actions/workflows/ci.yml)
+[![Release](https://github.com/jon4hz/gnome-shell-extension-aareguru/actions/workflows/release.yml/badge.svg)](https://github.com/jon4hz/gnome-shell-extension-aareguru/actions/workflows/release.yml)
+
 
 A GNOME Shell extension that displays water temperature and flow information from the Aare.guru API in your panel.
 
