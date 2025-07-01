@@ -83,12 +83,7 @@ The extension supports all measurement stations available in the Aare.guru API:
 
 ## API Information
 
-This extension uses the [Aare.guru API](https://aareguru.existenz.ch/) to fetch water temperature, flow, and weather data. The API is provided by:
-
-- **Data Sources**: 
-  - Aare measurement data: [Swiss Federal Office for the Environment (FOEN)](https://www.hydrodaten.admin.ch/)
-  - Weather data: [MeteoSwiss](https://opendata.swiss/en/dataset/automatische-wetterstationen-aktuelle-messwerte)
-  - Weather forecasts: [Meteotest](https://meteotest.ch/wetter-api/wetterprognosen)
+This extension uses the [Aare.guru API](https://aareguru.existenz.ch/) to fetch water temperature, flow, and weather data.
 
 ## Development
 
@@ -137,27 +132,9 @@ The extension is written in modern JavaScript (ES6+) and uses:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the GPL3 License - see the LICENSE file for details.
 
 ## Acknowledgments
 
 - Thanks to the [Aare.guru](https://aare.guru/) team for providing the free API
 - Data provided by Swiss Federal Office for the Environment and MeteoSwiss
-- Inspired by the Swiss love for swimming in the Aare river
-
-## Troubleshooting
-
-### Extension not showing up
-- Make sure you've compiled the schema: `glib-compile-schemas schemas/`
-- Restart GNOME Shell
-- Check if the extension is enabled: `gnome-extensions list --enabled`
-
-### API errors
-- Check your internet connection
-- The API might be temporarily unavailable
-- Try changing to a different city in settings
-
-### Performance
-- Default update interval is 5 minutes to respect API limits
-- The extension caches data to minimize API calls
-- Consider increasing update interval if you experience issues
