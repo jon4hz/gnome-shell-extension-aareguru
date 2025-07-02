@@ -12,5 +12,25 @@
       <summary>Update Interval</summary>
       <description>How often to update the data in minutes</description>
     </key>
+    <key name="show-temperature-section" type="b">
+      <default>true</default>
+      <summary>Show Temperature Section</summary>
+      <description>Show the water temperature section in the popup menu</description>
+    </key>
+    <key name="show-flow-section" type="b">
+      <default>true</default>
+      <summary>Show Flow Section</summary>
+      <description>Show the water flow section in the popup menu</description>
+    </key>
+    <key name="show-schwimmkanal-section" type="b">
+      <default>true</default>
+      <summary>Show Schwimmkanal Section</summary>
+      <description>Show the Schwimmkanal status section in the popup menu</description>
+    </key>
+    <key name="show-weather-section" type="b">
+      <default>true</default>
+      <summary>Show Weather Section</summary>
+      <description>Show the weather section in the popup menu</description>
+    </key>
   </schema>
 </schemalist>

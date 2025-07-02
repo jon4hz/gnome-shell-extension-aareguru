@@ -13,10 +13,9 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 // Swiss German UI text constants
 const UI_STRINGS = {
     WATER_TEMPERATURE: 'Wassertemperatur',
-    WATER_TEMP_FORECAST_2H: 'Wassertemp i 2 Stunde',
+    WATER_TEMP_FORECAST_2H: 'Wassertemp i 2 Stung',
     WATER_FLOW: 'Wassermängi',
     AIR_TEMPERATURE: 'Lufttemp',
-    TODAY: 'Hüt',
     MORNING: 'Morge',
     AFTERNOON: 'Nami',
     EVENING: 'Abe',
@@ -57,6 +56,22 @@ const AareGuruIndicator = GObject.registerClass(
             this._settings.connect('changed::update-interval', () => {
                 this._scheduleUpdate();
             });
+
+            this._settings.connect('changed::show-temperature-section', () => {
+                this._rebuildMenu();
+            });
+
+            this._settings.connect('changed::show-flow-section', () => {
+                this._rebuildMenu();
+            });
+
+            this._settings.connect('changed::show-schwimmkanal-section', () => {
+                this._rebuildMenu();
+            });
+
+            this._settings.connect('changed::show-weather-section', () => {
+                this._rebuildMenu();
+            });
         }
 
         _createPanelButton() {
@@ -71,102 +86,78 @@ const AareGuruIndicator = GObject.registerClass(
 
         _createPopupMenu() {
             // Temperature section
-            this._tempSection = new PopupMenu.PopupMenuSection();
-            this.menu.addMenuItem(this._tempSection);
+            if (this._settings.get_boolean('show-temperature-section')) {
+                this._tempSection = new PopupMenu.PopupMenuSection();
+                this.menu.addMenuItem(this._tempSection);
 
-            this._tempItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.WATER_TEMPERATURE + ': --°C'), {
-                reactive: false
-            });
-            this._tempSection.addMenuItem(this._tempItem);
+                this._tempItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.WATER_TEMPERATURE + ': --°C'));
+                this._tempSection.addMenuItem(this._tempItem);
 
-            this._tempTextItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.NO_DATA), {
-                reactive: false
-            });
-            this._tempSection.addMenuItem(this._tempTextItem);
+                this._tempTextItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.NO_DATA));
+                this._tempSection.addMenuItem(this._tempTextItem);
 
-            this._waterTempForecast2hItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.WATER_TEMP_FORECAST_2H + ': --°C'), {
-                reactive: false
-            });
-            this._tempSection.addMenuItem(this._waterTempForecast2hItem);
+                this._waterTempForecast2hItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.WATER_TEMP_FORECAST_2H + ': --°C'));
+                this._tempSection.addMenuItem(this._waterTempForecast2hItem);
 
-            this._waterTemp2hTextItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.NO_DATA), {
-                reactive: false
-            });
-            this._tempSection.addMenuItem(this._waterTemp2hTextItem);
+                this._waterTemp2hTextItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.NO_DATA));
+                this._tempSection.addMenuItem(this._waterTemp2hTextItem);
+            }
 
             // Flow section
-            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+            if (this._settings.get_boolean('show-flow-section')) {
+                this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-            this._flowSection = new PopupMenu.PopupMenuSection();
-            this.menu.addMenuItem(this._flowSection);
+                this._flowSection = new PopupMenu.PopupMenuSection();
+                this.menu.addMenuItem(this._flowSection);
 
-            this._flowItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.WATER_FLOW + ': -- m³/s'), {
-                reactive: false
-            });
-            this._flowSection.addMenuItem(this._flowItem);
+                this._flowItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.WATER_FLOW + ': -- m³/s'));
+                this._flowSection.addMenuItem(this._flowItem);
 
-            this._flowTextItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.NO_DATA), {
-                reactive: false
-            });
-            this._flowSection.addMenuItem(this._flowTextItem);
+                this._flowTextItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.NO_DATA));
+                this._flowSection.addMenuItem(this._flowTextItem);
+            }
 
             // Schwimmkanal section
-            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+            if (this._settings.get_boolean('show-schwimmkanal-section')) {
+                this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-            this._schwimmkanalSection = new PopupMenu.PopupMenuSection();
-            this.menu.addMenuItem(this._schwimmkanalSection);
+                this._schwimmkanalSection = new PopupMenu.PopupMenuSection();
+                this.menu.addMenuItem(this._schwimmkanalSection);
 
-            this._schwimmkanalItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.SCHWIMMKANAL + ': --'), {
-                reactive: false
-            });
-            this._schwimmkanalSection.addMenuItem(this._schwimmkanalItem);
+                this._schwimmkanalItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.SCHWIMMKANAL + ': --'));
+                this._schwimmkanalSection.addMenuItem(this._schwimmkanalItem);
+            }
 
             // Weather section
-            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+            if (this._settings.get_boolean('show-weather-section')) {
+                this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-            this._weatherSection = new PopupMenu.PopupMenuSection();
-            this.menu.addMenuItem(this._weatherSection);
+                this._weatherSection = new PopupMenu.PopupMenuSection();
+                this.menu.addMenuItem(this._weatherSection);
 
-            this._weatherItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.AIR_TEMPERATURE + ': --°C'), {
-                reactive: false
-            });
-            this._weatherSection.addMenuItem(this._weatherItem);
+                this._weatherItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.AIR_TEMPERATURE + ': --°C'));
+                this._weatherSection.addMenuItem(this._weatherItem);
 
-            // Today's weather forecast header
-            this._todayHeaderItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.TODAY + ':'), {
-                reactive: false
-            });
-            this._weatherSection.addMenuItem(this._todayHeaderItem);
+                // Morning forecast
+                this._morningForecastItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.MORNING + ': --'));
+                this._weatherSection.addMenuItem(this._morningForecastItem);
 
-            // Morning forecast
-            this._morningForecastItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.MORNING + ': --'), {
-                reactive: false
-            });
-            this._weatherSection.addMenuItem(this._morningForecastItem);
+                // Afternoon forecast
+                this._afternoonForecastItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.AFTERNOON + ': --'));
+                this._weatherSection.addMenuItem(this._afternoonForecastItem);
 
-            // Afternoon forecast
-            this._afternoonForecastItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.AFTERNOON + ': --'), {
-                reactive: false
-            });
-            this._weatherSection.addMenuItem(this._afternoonForecastItem);
-
-            // Evening forecast
-            this._eveningForecastItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.EVENING + ': --'), {
-                reactive: false
-            });
-            this._weatherSection.addMenuItem(this._eveningForecastItem);
+                // Evening forecast
+                this._eveningForecastItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.EVENING + ': --'));
+                this._weatherSection.addMenuItem(this._eveningForecastItem);
+            }
 
             // Location and last update
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-            this._locationItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.LOCATION + ': --'), {
-                reactive: false
-            });
+            this._locationItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.LOCATION + ': --'));
             this.menu.addMenuItem(this._locationItem);
 
-            this._lastUpdateItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.LAST_UPDATE + ': --'), {
-                reactive: false
-            });
+            this._lastUpdateItem = new PopupMenu.PopupMenuItem(_(UI_STRINGS.LAST_UPDATE + ': --'));
             this.menu.addMenuItem(this._lastUpdateItem);
 
             // Settings
@@ -263,75 +254,82 @@ const AareGuruIndicator = GObject.registerClass(
 
         _updatePopupItems(data) {
             // Temperature
-            const temp = data.aare?.temperature;
-            const tempText = data.aare?.temperature_text || UI_STRINGS.NO_DATA;
+            if (this._tempItem) {
+                const temp = data.aare?.temperature;
+                const tempText = data.aare?.temperature_text || UI_STRINGS.NO_DATA;
 
-            if (temp !== null && temp !== undefined) {
-                this._tempItem.label.set_text(_(UI_STRINGS.WATER_TEMPERATURE + ': ') + `${temp}°C`);
-            } else {
-                this._tempItem.label.set_text(_(UI_STRINGS.WATER_TEMPERATURE + ': --°C'));
+                if (temp !== null && temp !== undefined) {
+                    this._tempItem.label.set_text(_(UI_STRINGS.WATER_TEMPERATURE + ': ') + `${temp}°C`);
+                } else {
+                    this._tempItem.label.set_text(_(UI_STRINGS.WATER_TEMPERATURE + ': --°C'));
+                }
+                this._tempTextItem.label.set_text(tempText);
+
+                // Water temperature forecast for 2 hours
+                const waterTempForecast2h = data.aare?.forecast2h;
+                const waterTempForecast2hText = data.aare?.forecast2h_text || UI_STRINGS.NO_DATA;
+                if (waterTempForecast2h !== null && waterTempForecast2h !== undefined) {
+                    this._waterTempForecast2hItem.label.set_text(_(UI_STRINGS.WATER_TEMP_FORECAST_2H + ': ') + `${waterTempForecast2h}°C`);
+                } else {
+                    this._waterTempForecast2hItem.label.set_text(_(UI_STRINGS.WATER_TEMP_FORECAST_2H + ': --°C'));
+                }
+                this._waterTemp2hTextItem.label.set_text(waterTempForecast2hText);
             }
-            this._tempTextItem.label.set_text(tempText);
-
-            // Water temperature forecast for 2 hours
-            const waterTempForecast2h = data.aare?.forecast2h;
-            const waterTempForecast2hText = data.aare?.forecast2h_text || UI_STRINGS.NO_DATA;
-            if (waterTempForecast2h !== null && waterTempForecast2h !== undefined) {
-                this._waterTempForecast2hItem.label.set_text(_(UI_STRINGS.WATER_TEMP_FORECAST_2H + ': ') + `${waterTempForecast2h}°C`);
-            } else {
-                this._waterTempForecast2hItem.label.set_text(_(UI_STRINGS.WATER_TEMP_FORECAST_2H + ': --°C'));
-            }
-            this._waterTemp2hTextItem.label.set_text(waterTempForecast2hText);
-
 
             // Flow
-            const flow = data.aare?.flow;
-            const flowText = data.aare?.flow_text || UI_STRINGS.NO_DATA;
+            if (this._flowItem) {
+                const flow = data.aare?.flow;
+                const flowText = data.aare?.flow_text || UI_STRINGS.NO_DATA;
 
-            if (flow !== null && flow !== undefined) {
-                this._flowItem.label.set_text(_(UI_STRINGS.WATER_FLOW + ': ') + `${flow} m³/s`);
-            } else {
-                this._flowItem.label.set_text(_(UI_STRINGS.WATER_FLOW + ': -- m³/s'));
+                if (flow !== null && flow !== undefined) {
+                    this._flowItem.label.set_text(_(UI_STRINGS.WATER_FLOW + ': ') + `${flow} m³/s`);
+                } else {
+                    this._flowItem.label.set_text(_(UI_STRINGS.WATER_FLOW + ': -- m³/s'));
+                }
+                this._flowTextItem.label.set_text(flowText);
             }
-            this._flowTextItem.label.set_text(flowText);
 
             // Schwimmkanal (bueber)
-            const bueber = data.bueber;
-            if (bueber) {
-                const isOpen = bueber.state_open_flag;
-                const emoji = isOpen ? '🏊‍♀️' : '🚫';
-                const statusText = isOpen ? 'Offe' : 'Zue';
-                this._schwimmkanalItem.label.set_text(_(UI_STRINGS.SCHWIMMKANAL + ': ') + `${emoji} ${statusText}`);
-            } else {
-                this._schwimmkanalItem.label.set_text(_(UI_STRINGS.SCHWIMMKANAL + ': --'));
+            if (this._schwimmkanalItem) {
+                const bueber = data.bueber;
+                if (bueber) {
+                    const isOpen = bueber.state_open_flag;
+                    const emoji = isOpen ? '🏊‍♀️' : '🚫';
+                    const statusText = isOpen ? 'Offe' : 'Zue';
+                    this._schwimmkanalItem.label.set_text(_(UI_STRINGS.SCHWIMMKANAL + ': ') + `${emoji} ${statusText}`);
+                } else {
+                    this._schwimmkanalItem.label.set_text(_(UI_STRINGS.SCHWIMMKANAL + ': --'));
+                }
             }
 
             // Weather
-            const airTemp = data.weather?.current?.tt;
-            if (airTemp !== null && airTemp !== undefined) {
-                this._weatherItem.label.set_text(_(UI_STRINGS.AIR_TEMPERATURE + ': ') + `${airTemp}°C`);
-            } else {
-                this._weatherItem.label.set_text(_(UI_STRINGS.AIR_TEMPERATURE + ': --°C'));
-            }
+            if (this._weatherItem) {
+                const airTemp = data.weather?.current?.tt;
+                if (airTemp !== null && airTemp !== undefined) {
+                    this._weatherItem.label.set_text(_(UI_STRINGS.AIR_TEMPERATURE + ': ') + `${airTemp}°C`);
+                } else {
+                    this._weatherItem.label.set_text(_(UI_STRINGS.AIR_TEMPERATURE + ': --°C'));
+                }
 
-            // Weather forecast for today
-            const todayForecast = data.weather?.today;
-            if (todayForecast) {
-                // Morning forecast
-                const morningText = this._formatWeatherForecast(todayForecast.v);
-                this._morningForecastItem.label.set_text(_(UI_STRINGS.MORNING + ': ') + morningText);
+                // Weather forecast for today
+                const todayForecast = data.weather?.today;
+                if (todayForecast) {
+                    // Morning forecast
+                    const morningText = this._formatWeatherForecast(todayForecast.v);
+                    this._morningForecastItem.label.set_text(_(UI_STRINGS.MORNING + ': ') + morningText);
 
-                // Afternoon forecast
-                const afternoonText = this._formatWeatherForecast(todayForecast.n);
-                this._afternoonForecastItem.label.set_text(_(UI_STRINGS.AFTERNOON + ': ') + afternoonText);
+                    // Afternoon forecast
+                    const afternoonText = this._formatWeatherForecast(todayForecast.n);
+                    this._afternoonForecastItem.label.set_text(_(UI_STRINGS.AFTERNOON + ': ') + afternoonText);
 
-                // Evening forecast
-                const eveningText = this._formatWeatherForecast(todayForecast.a);
-                this._eveningForecastItem.label.set_text(_(UI_STRINGS.EVENING + ': ') + eveningText);
-            } else {
-                this._morningForecastItem.label.set_text(_(UI_STRINGS.MORNING + ': ') + UI_STRINGS.NO_DATA);
-                this._afternoonForecastItem.label.set_text(_(UI_STRINGS.AFTERNOON + ': ') + UI_STRINGS.NO_DATA);
-                this._eveningForecastItem.label.set_text(_(UI_STRINGS.EVENING + ': ') + UI_STRINGS.NO_DATA);
+                    // Evening forecast
+                    const eveningText = this._formatWeatherForecast(todayForecast.a);
+                    this._eveningForecastItem.label.set_text(_(UI_STRINGS.EVENING + ': ') + eveningText);
+                } else {
+                    this._morningForecastItem.label.set_text(_(UI_STRINGS.MORNING + ': ') + UI_STRINGS.NO_DATA);
+                    this._afternoonForecastItem.label.set_text(_(UI_STRINGS.AFTERNOON + ': ') + UI_STRINGS.NO_DATA);
+                    this._eveningForecastItem.label.set_text(_(UI_STRINGS.EVENING + ': ') + UI_STRINGS.NO_DATA);
+                }
             }
 
             // Location
@@ -345,16 +343,24 @@ const AareGuruIndicator = GObject.registerClass(
 
         _setErrorState(message) {
             this._temperatureLabel.set_text('ERR');
-            this._tempItem.label.set_text(_(UI_STRINGS.ERROR + ': ') + message);
-            this._tempTextItem.label.set_text(UI_STRINGS.NO_DATA);
-            this._waterTempForecast2hItem.label.set_text(_(UI_STRINGS.WATER_TEMP_FORECAST_2H + ': --°C'));
-            this._flowItem.label.set_text(_(UI_STRINGS.WATER_FLOW + ': --'));
-            this._flowTextItem.label.set_text(UI_STRINGS.NO_DATA);
-            this._schwimmkanalItem.label.set_text(_(UI_STRINGS.SCHWIMMKANAL + ': --'));
-            this._weatherItem.label.set_text(_(UI_STRINGS.AIR_TEMPERATURE + ': --'));
-            this._morningForecastItem.label.set_text(_(UI_STRINGS.MORNING + ': --'));
-            this._afternoonForecastItem.label.set_text(_(UI_STRINGS.AFTERNOON + ': --'));
-            this._eveningForecastItem.label.set_text(_(UI_STRINGS.EVENING + ': --'));
+            if (this._tempItem) {
+                this._tempItem.label.set_text(_(UI_STRINGS.ERROR + ': ') + message);
+                this._tempTextItem.label.set_text(UI_STRINGS.NO_DATA);
+                this._waterTempForecast2hItem.label.set_text(_(UI_STRINGS.WATER_TEMP_FORECAST_2H + ': --°C'));
+            }
+            if (this._flowItem) {
+                this._flowItem.label.set_text(_(UI_STRINGS.WATER_FLOW + ': --'));
+                this._flowTextItem.label.set_text(UI_STRINGS.NO_DATA);
+            }
+            if (this._schwimmkanalItem) {
+                this._schwimmkanalItem.label.set_text(_(UI_STRINGS.SCHWIMMKANAL + ': --'));
+            }
+            if (this._weatherItem) {
+                this._weatherItem.label.set_text(_(UI_STRINGS.AIR_TEMPERATURE + ': --'));
+                this._morningForecastItem.label.set_text(_(UI_STRINGS.MORNING + ': --'));
+                this._afternoonForecastItem.label.set_text(_(UI_STRINGS.AFTERNOON + ': --'));
+                this._eveningForecastItem.label.set_text(_(UI_STRINGS.EVENING + ': --'));
+            }
             this._locationItem.label.set_text(_(UI_STRINGS.LOCATION + ': --'));
             this._lastUpdateItem.label.set_text(_(UI_STRINGS.LAST_UPDATE + ': Error'));
         }
@@ -373,6 +379,19 @@ const AareGuruIndicator = GObject.registerClass(
                     return GLib.SOURCE_CONTINUE;
                 }
             );
+        }
+
+        _rebuildMenu() {
+            // Clear the existing menu
+            this.menu.removeAll();
+
+            // Recreate the menu
+            this._createPopupMenu();
+
+            // Update with current data if available
+            if (this._currentData) {
+                this._updatePopupItems(this._currentData);
+            }
         }
 
         destroy() {
