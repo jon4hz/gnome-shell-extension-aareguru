@@ -70,6 +70,45 @@ export default class AareGuruPreferences extends ExtensionPreferences {
         // Bind update interval setting
         window._settings.bind('update-interval', updateRow, 'value', Gio.SettingsBindFlags.DEFAULT);
 
+        // Display sections group
+        const sectionsGroup = new Adw.PreferencesGroup({
+            title: _('Display Sections'),
+            description: _('Choose which sections to show in the popup menu'),
+        });
+        page.add(sectionsGroup);
+
+        // Temperature section toggle
+        const temperatureRow = new Adw.SwitchRow({
+            title: _('Water Temperature'),
+            subtitle: _('Show water temperature and forecast information'),
+        });
+        sectionsGroup.add(temperatureRow);
+        window._settings.bind('show-temperature-section', temperatureRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        // Flow section toggle
+        const flowRow = new Adw.SwitchRow({
+            title: _('Water Flow'),
+            subtitle: _('Show water flow information'),
+        });
+        sectionsGroup.add(flowRow);
+        window._settings.bind('show-flow-section', flowRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        // Schwimmkanal section toggle
+        const schwimmkanalRow = new Adw.SwitchRow({
+            title: _('Schwimmkanal'),
+            subtitle: _('Show swimming channel status'),
+        });
+        sectionsGroup.add(schwimmkanalRow);
+        window._settings.bind('show-schwimmkanal-section', schwimmkanalRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        // Weather section toggle
+        const weatherRow = new Adw.SwitchRow({
+            title: _('Weather'),
+            subtitle: _('Show weather information and forecasts'),
+        });
+        sectionsGroup.add(weatherRow);
+        window._settings.bind('show-weather-section', weatherRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         // About group
         const aboutGroup = new Adw.PreferencesGroup({
             title: _('About'),
