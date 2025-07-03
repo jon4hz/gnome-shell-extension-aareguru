@@ -1,5 +1,5 @@
 # Aare Guru GNOME Shell Extension
-[![Test](https://github.com/jon4hz/gnome-shell-extension-aareguru/actions/workflows/ci.yml/badge.svg)](https://github.com/jon4hz/gnome-shell-extension-aareguru/actions/workflows/ci.yml)
+[![Test](https://github.com/jon4hz/gnome-shell-extension-aareguru/actions/workflows/test.yml/badge.svg)](https://github.com/jon4hz/gnome-shell-extension-aareguru/actions/workflows/test.yml)
 [![Release](https://github.com/jon4hz/gnome-shell-extension-aareguru/actions/workflows/release.yml/badge.svg)](https://github.com/jon4hz/gnome-shell-extension-aareguru/actions/workflows/release.yml)
 
 
