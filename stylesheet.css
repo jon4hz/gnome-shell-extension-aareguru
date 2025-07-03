@@ -5,6 +5,7 @@
     padding: 0 6px;
     font-size: 1.0em;
     color: #4A90E2;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .aare-popup-menu-item {
@@ -15,18 +16,34 @@
     color: #888;
 }
 
+/* Enhanced temperature color scale */
+.aare-temperature-freezing {
+    color: #1565C0;
+    text-shadow: 0 0 4px rgba(21, 101, 192, 0.5);
+}
+
 .aare-temperature-cold {
     color: #2196F3;
+    text-shadow: 0 0 4px rgba(33, 150, 243, 0.4);
 }
 
 .aare-temperature-cool {
     color: #4CAF50;
+    text-shadow: 0 0 4px rgba(76, 175, 80, 0.4);
 }
 
 .aare-temperature-warm {
     color: #FF9800;
+    text-shadow: 0 0 4px rgba(255, 152, 0, 0.4);
 }
 
 .aare-temperature-hot {
     color: #F44336;
+    text-shadow: 0 0 4px rgba(244, 67, 54, 0.4);
+}
+
+.aare-temperature-very-hot {
+    color: #D32F2F;
+    text-shadow: 0 0 6px rgba(211, 47, 47, 0.6);
+    font-weight: 900;
 }
