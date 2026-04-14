@@ -26,6 +26,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up dependencies
         run: |
@@ -36,23 +37,27 @@ jobs:
         id: version
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
+            VERSION="${GITHUB_EVENT_INPUTS_VERSION}"
           else
             VERSION=${GITHUB_REF#refs/tags/v}
           fi
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "TAG=v$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
+        env:
+          GITHUB_EVENT_INPUTS_VERSION: ${{ github.event.inputs.version }}
 
       - name: Update metadata.json with version
         run: |
-          VERSION="${{ steps.version.outputs.VERSION }}"
+          VERSION="${STEPS_VERSION_OUTPUTS_VERSION}"
           # Update version in metadata.json (keep as string for semantic versioning)
           jq --arg version "$VERSION" '.version = $version' metadata.json > metadata.json.tmp
           mv metadata.json.tmp metadata.json
 
           echo "Updated metadata.json:"
           cat metadata.json
+        env:
+          STEPS_VERSION_OUTPUTS_VERSION: ${{ steps.version.outputs.VERSION }}
 
       - name: Validate extension
         run: |
@@ -64,17 +69,19 @@ jobs:
           make zip
 
           # Rename the zip file to include version
-          VERSION="${{ steps.version.outputs.VERSION }}"
+          VERSION="${STEPS_VERSION_OUTPUTS_VERSION}"
           PACKAGE_NAME="${EXTENSION_NAME}-v${VERSION}.zip"
           mv "${EXTENSION_NAME}.zip" "$PACKAGE_NAME"
 
           echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
           echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+        env:
+          STEPS_VERSION_OUTPUTS_VERSION: ${{ steps.version.outputs.VERSION }}
 
       - name: Generate changelog
         id: changelog
         run: |
-          VERSION="${{ steps.version.outputs.VERSION }}"
+          VERSION="${STEPS_VERSION_OUTPUTS_VERSION}"
 
           # Get the previous tag
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
@@ -101,6 +108,8 @@ jobs:
           echo "- Swiss German interface with consistent UI strings" >> CHANGELOG.md
 
           cat CHANGELOG.md
+        env:
+          STEPS_VERSION_OUTPUTS_VERSION: ${{ steps.version.outputs.VERSION }}
 
       - name: Create GitHub Release
         id: create_release
@@ -117,6 +126,10 @@ jobs:
       - name: Get release upload URL
         id: get_release
         run: |
-          echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_OUTPUT
-          echo "RELEASE_ID=${{ steps.create_release.outputs.id }}" >> $GITHUB_OUTPUT
-          echo "RELEASE_URL=${{ steps.create_release.outputs.url }}" >> $GITHUB_OUTPUT
+          echo "UPLOAD_URL=${STEPS_CREATE_RELEASE_OUTPUTS_UPLOAD_URL}" >> $GITHUB_OUTPUT
+          echo "RELEASE_ID=${STEPS_CREATE_RELEASE_OUTPUTS_ID}" >> $GITHUB_OUTPUT
+          echo "RELEASE_URL=${STEPS_CREATE_RELEASE_OUTPUTS_URL}" >> $GITHUB_OUTPUT
+        env:
+          STEPS_CREATE_RELEASE_OUTPUTS_UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
+          STEPS_CREATE_RELEASE_OUTPUTS_ID: ${{ steps.create_release.outputs.id }}
+          STEPS_CREATE_RELEASE_OUTPUTS_URL: ${{ steps.create_release.outputs.url }}

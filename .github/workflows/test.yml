@@ -9,6 +9,8 @@ on:
 env:
   EXTENSION_NAME: "aareguru@jon4hz.io"
 
+permissions: {}
+
 jobs:
   lint-and-validate:
     runs-on: ubuntu-latest
@@ -16,6 +18,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Set up dependencies
         run: |
